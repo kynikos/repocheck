@@ -398,20 +398,21 @@ def main():
                            help='fetch updates for the remotes before '
                                 'checking a repository')
     cliparser.add_argument('-a', '--all', action='store_true',
-                           help='show all repositories and branches even if '
+                           help='show all repositories and branches even when '
                                 'they require no action')
     cliparser.add_argument('-e', '--expanded', action='store_true',
                            help='print detailed information for every '
                                 'repository')
     cliparser.add_argument('-l', '--legend', action='store_true',
-                           help='display a legend for the used symbols')
+                           help='display a legend for the used symbols and '
+                                'exit')
     cliparser.add_argument('--no-colors', action='store_true',
                            help='do not use colors in the output')
     cliparser.add_argument('rootdirs', nargs='*', default=('./', ),
                            metavar='PATH',
-                           help='a root directory from which search '
-                                'recursively for repositories '
-                                '(default: %(default)s)')
+                           help='root directories from which search '
+                                'recursively for repositories; if no paths '
+                                'are given, the working directory is used')
     cliargs = cliparser.parse_args()
     if cliargs.legend:
         Viewer(None).print_legend(cliargs.no_colors)
