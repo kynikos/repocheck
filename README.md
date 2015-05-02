@@ -21,6 +21,14 @@ The code has been written from scratch, but the idea was inspired by
 [unpushed](https://github.com/nailgun/unpushed) and
 [gitcheck](https://github.com/badele/gitcheck).
 
+## Installation
+
+repocheck is currently only packaged for Arch Linux in the AUR as
+[repocheck-git](https://aur.archlinux.org/packages/repocheck-git/).
+
+On other operating systems it must be installed with Python's manual tools.
+Pull requests that add support for other operating systems are welcome!
+
 ## License
 
 repocheck is distributed under the terms of the
