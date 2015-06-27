@@ -75,10 +75,14 @@ class _Repository:
         for remote, branch in self.iter_remote_branches():
             try:
                 self.remote_to_branches[remote].append(branch)
-                self.branch_to_remotes_to_status[branch][remote] = None
             except KeyError:
                 self.remote_to_branches[remote] = [branch, ]
+            try:
+                self.branch_to_remotes_to_status[branch]
+            except KeyError:
                 self.branch_to_remotes_to_status[branch] = {remote: None}
+            else:
+                self.branch_to_remotes_to_status[branch][remote] = None
 
         for branch in self.iter_local_branches():
             try:
