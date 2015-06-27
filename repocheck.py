@@ -30,7 +30,8 @@ from subprocess import Popen, PIPE
 
 
 class RepoCheck:
-    def __init__(self, update_remotes=False, rootdirs=('./', )):
+    def __init__(self, update_remotes=False, rootdirs=('./', ),
+                 followlinks=False):
         # __init__'s arguments must match the argparse attributes and their
         #  default values
         # Having a separate class allows using it as a library from another
@@ -40,7 +41,8 @@ class RepoCheck:
         # TODO: It should also work if executed from within a folder inside a
         #       repository
         for rootdir in rootdirs:
-            for dirpath, dirnames, filenames in os.walk(rootdir):
+            for dirpath, dirnames, filenames in os.walk(rootdir,
+                                                    followlinks=followlinks):
                 for Repo in self.INSTALLED_VCS:
                     if Repo.DOTDIR in dirnames:
                         # Use the absolute path so that the correct repo name
@@ -403,7 +405,11 @@ def main():
     cliparser.add_argument('-e', '--expanded', action='store_true',
                            help='print detailed information for every '
                                 'repository')
-    cliparser.add_argument('-l', '--legend', action='store_true',
+    cliparser.add_argument('-l', '--followlinks', action='store_true',
+                           help='follow links to directories (*warning:* this '
+                                'can lead to infinite recursion if a link '
+                                'points to an ancestor directory of itself')
+    cliparser.add_argument('-L', '--legend', action='store_true',
                            help='display a legend for the used symbols and '
                                 'exit')
     cliparser.add_argument('--no-colors', action='store_true',
@@ -417,7 +423,8 @@ def main():
     if cliargs.legend:
         Viewer(None).print_legend(cliargs.no_colors)
         sys.exit()
-    repocheck = RepoCheck(cliargs.update_remotes, cliargs.rootdirs)
+    repocheck = RepoCheck(cliargs.update_remotes, cliargs.rootdirs,
+                          cliargs.followlinks)
     Viewer(repocheck.repos).display_results(cliargs.expanded, cliargs.all,
                                             cliargs.no_colors)
 
