@@ -401,10 +401,10 @@ def main():
     cliparser.add_argument('-e', '--expanded', action='store_true',
                            help='print detailed information for every '
                                 'repository')
-    cliparser.add_argument('-l', '--followlinks', action='store_true',
+    cliparser.add_argument('-l', '--follow-links', action='store_true',
                            help='follow links to directories (*warning:* this '
                                 'can lead to infinite recursion if a link '
-                                'points to an ancestor directory of itself')
+                                'points to an ancestor directory of itself)')
     cliparser.add_argument('-L', '--legend', action='store_true',
                            help='display a legend for the used symbols and '
                                 'exit')
