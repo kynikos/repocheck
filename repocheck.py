@@ -23,11 +23,6 @@ import argparse
 import os
 from subprocess import Popen, PIPE
 
-# TODO: Add preview/screenshot to README.md
-# TODO: Use logging and a debug mode to display which repo is being scanned
-#       because some warnings may be output by the 'git' commands
-# TODO: Submit to PyPi, mention in http://stackoverflow.com/questions/2016901/viewing-unpushed-git-commits
-
 
 class RepoCheck:
     def __init__(self, update_remotes=False, rootdirs=('./', ),
@@ -39,7 +34,7 @@ class RepoCheck:
         self.INSTALLED_VCS = (_Git, )
         self.repos = {}
         # TODO: It should also work if executed from within a folder inside a
-        #       repository
+        #       repository (bug #6)
         for rootdir in rootdirs:
             for dirpath, dirnames, filenames in os.walk(rootdir,
                                                     followlinks=followlinks):
@@ -165,12 +160,14 @@ class _Git(_Repository):
 class _Mercurial(_Repository):
     # TODO: Implement and add to RepoCheck.INSTALLED_VCS
     #       Also update README.md
+    #       (bug #7)
     pass
 
 
 class _Subversion(_Repository):
     # TODO: Implement and add to RepoCheck.INSTALLED_VCS
     #       Also update README.md
+    #       (bug #7)
     pass
 
 
@@ -392,11 +389,6 @@ Branch symbols:
 
 
 def main():
-    # TODO: Allow limiting the depth of the search in the directory tree
-    # TODO: Allow ignoring branch or repo names by regex (blacklist)
-    #       Also allow the inverse (whitelist)
-    #       Maybe merge with the PATH positional arguments and use the glob
-    #       or pathlib modules
     cliparser = argparse.ArgumentParser(description="repocheck - Check the "
                         "status of code repositories under a root directory.",
                         add_help=True)
