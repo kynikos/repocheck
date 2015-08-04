@@ -26,7 +26,7 @@ from subprocess import Popen, PIPE
 
 class RepoCheck:
     def __init__(self, update_remotes=False, rootdirs=('./', ),
-                 followlinks=False):
+                 followlinks=False, nested_repos=True):
         # __init__'s arguments must match the argparse attributes and their
         #  default values
         # Having a separate class allows using it as a library from another
@@ -47,6 +47,10 @@ class RepoCheck:
                         self.repos[absdirpath] = Repo(absdirpath,
                                                       update_remotes)
                         break
+                else:
+                    continue
+                if not nested_repos:
+                    dirnames.clear()
 
 
 class _Repository:
@@ -405,6 +409,9 @@ def main():
                            help='follow links to directories (*warning:* this '
                                 'can lead to infinite recursion if a link '
                                 'points to an ancestor directory of itself)')
+    cliparser.add_argument('-n', '--no-nested-repos', action='store_true',
+                           help='do not look for repositories in repository '
+                                'subdirectories')
     cliparser.add_argument('-L', '--legend', action='store_true',
                            help='display a legend for the used symbols and '
                                 'exit')
@@ -420,7 +427,7 @@ def main():
         Viewer(None).print_legend(cliargs.no_colors)
         sys.exit()
     repocheck = RepoCheck(cliargs.update_remotes, cliargs.rootdirs,
-                          cliargs.followlinks)
+                          cliargs.follow_links, not cliargs.no_nested_repos)
     Viewer(repocheck.repos).display_results(cliargs.expanded, cliargs.all,
                                             cliargs.no_colors)
 
