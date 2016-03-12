@@ -267,7 +267,8 @@ Branch symbols:
                     branches.append('{} {}'.format(color('}', RED), branchstr))
                     action_required = True
                 else:
-                    for remote in repo.branch_to_remotes_to_status[branch]:
+                    for remote in sorted(repo.branch_to_remotes_to_status[
+                                                                    branch]):
                         status = repo.branch_to_remotes_to_status[branch][
                                                                         remote]
                         if status is None:
