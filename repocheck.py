@@ -235,162 +235,161 @@ Branch symbols:
         def color(text, COLOR):
             return ''.join((COLOR, text, RESET))
 
+        displayf = self._display_expanded if expanded else self._display_short
+
         for repopath in sorted(self.repos.keys()):
-            repo = self.repos[repopath]
+            displayf(self.repos[repopath], all_, INDENT, color, RED, REDBOLD,
+                     GREEN, GREENBOLD, YELLOW, YELLOWBOLD, BLUE, BLUEBOLD,
+                     PURPLE, PURPLEBOLD, CYAN, CYANBOLD, WHITE, WHITEBOLD,
+                     RESET)
 
-            workspace = []
-            branches = []
-            action_required = False
-            if expanded:
-                for status, filepath in repo.uncommitted:
-                    workspace.append('{} {}'.format(color(status, RED),
-                                                    filepath))
-                    action_required = True
-                for status, filepath in repo.untracked:
-                    workspace.append('{} {}'.format(color(status, CYAN),
-                                                    filepath))
-                    action_required = True
+    def _display_expanded(self, repo, all_, INDENT, color, RED, REDBOLD, GREEN,
+                          GREENBOLD, YELLOW, YELLOWBOLD, BLUE, BLUEBOLD,
+                          PURPLE, PURPLEBOLD, CYAN, CYANBOLD, WHITE, WHITEBOLD,
+                          RESET):
+        workspace = []
+        branches = []
+        action_required = False
 
-                if len(repo.remote_to_branches) > 1:
-                    for branch in sorted(
-                                    repo.branch_to_remotes_to_status.keys()):
-                        branchstr = color(branch, GREEN) \
-                                    if branch == repo.current_branch \
-                                    else branch
-                        if len(repo.branch_to_remotes_to_status[branch]) == 0:
-                            branches.append('{} {}'.format(color('}', RED),
-                                                           branchstr))
-                            action_required = True
-                        else:
-                            for remote in repo.branch_to_remotes_to_status[
-                                                                    branch]:
-                                status = repo.branch_to_remotes_to_status[
-                                                                branch][remote]
-                                if status is None:
-                                    if all_:
-                                        branches.append('{} {} ({})'.format(
-                                            color('{', GREEN),
-                                            branchstr, remote))
-                                else:
-                                    if status[0] > 0:
-                                        if status[1] > 0:
-                                            branches.append('{} {} ({}) {}'
-                                                ''.format(color('#', RED),
-                                                    branchstr, remote,
-                                                    color('|'.join((
-                                                        str(status[0]),
-                                                        str(status[1]))),
-                                                        YELLOW)))
-                                        else:
-                                            branches.append('{} {} ({}) {}'
-                                                ''.format(color('>', RED),
-                                                    branchstr, remote, color(
-                                                    str(status[0]), YELLOW)))
-                                        action_required = True
-                                    elif status[1] > 0:
-                                        branches.append('{} {} ({}) {}'.format(
-                                            color('<', CYAN), branchstr,
-                                            remote,
-                                            color(str(status[1]), YELLOW)))
-                                        action_required = True
-                                    elif all_:
-                                        branches.append('{} {} ({})'.format(
-                                            color('=', GREEN),
-                                            branchstr, remote))
+        for status, filepath in repo.uncommitted:
+            workspace.append('{} {}'.format(color(status, RED), filepath))
+            action_required = True
+        for status, filepath in repo.untracked:
+            workspace.append('{} {}'.format(color(status, CYAN), filepath))
+            action_required = True
+
+        if len(repo.remote_to_branches) > 1:
+            for branch in sorted(repo.branch_to_remotes_to_status.keys()):
+                branchstr = color(branch, GREEN) \
+                            if branch == repo.current_branch \
+                            else branch
+                if len(repo.branch_to_remotes_to_status[branch]) == 0:
+                    branches.append('{} {}'.format(color('}', RED), branchstr))
+                    action_required = True
                 else:
-                    for branch in sorted(
-                                    repo.branch_to_remotes_to_status.keys()):
-                        branchstr = color(branch, GREEN) \
-                                    if branch == repo.current_branch \
-                                    else branch
-                        if len(repo.branch_to_remotes_to_status[branch]) == 0:
-                            branches.append('{} {}'.format(color('}', RED),
-                                                                    branchstr))
-                            action_required = True
-                        else:
-                            remote = tuple(repo.branch_to_remotes_to_status[
-                                                            branch].keys())[0]
-                            status = repo.branch_to_remotes_to_status[branch][
+                    for remote in repo.branch_to_remotes_to_status[branch]:
+                        status = repo.branch_to_remotes_to_status[branch][
                                                                         remote]
-                            if status is None:
-                                if all_:
-                                    branches.append('{} {}'.format(
-                                            color('{', GREEN), branchstr))
-                            else:
-                                if status[0] > 0:
-                                    if status[1] > 0:
-                                        branches.append('{} {} {}'
-                                            ''.format(color('#', RED),
-                                                branchstr,
-                                                color('|'.join((str(status[0]),
-                                                    str(status[1]))), YELLOW)))
-                                    else:
-                                        branches.append('{} {} {}'
-                                            ''.format(color('>', RED),
-                                                      branchstr, color(
-                                                        str(status[0]),
-                                                        YELLOW)))
-                                    action_required = True
-                                elif status[1] > 0:
-                                    branches.append('{} {} {}'.format(
-                                        color('<', CYAN),
-                                        branchstr, color(str(status[1]),
-                                                         YELLOW)))
-                                    action_required = True
-                                elif all_:
-                                    branches.append('{} {}'.format(
-                                        color('=', GREEN), branchstr))
-
-                if action_required:
-                    print(color(repo.reponame, REDBOLD))
-                    if workspace:
-                        for line in workspace:
-                            print(INDENT * 2 + line)
-                    for line in branches:
-                        print(INDENT + line)
-                elif all_:
-                    print(color(repo.reponame, GREENBOLD))
-                    if workspace:
-                        for line in workspace:
-                            print(INDENT * 2 + line)
-                    for line in branches:
-                        print(INDENT + line)
-
-            else:
-                if repo.uncommitted:
-                    workspace.append(color('{}*'.format(len(repo.uncommitted)),
-                                     RED))
+                        if status is None:
+                            if all_:
+                                branches.append('{} {} ({})'.format(color('{',
+                                                GREEN), branchstr, remote))
+                        else:
+                            if status[0] > 0:
+                                if status[1] > 0:
+                                    branches.append('{} {} ({}) {}'.format(
+                                        color('#', RED), branchstr, remote,
+                                        color('|'.join((str(status[0]),
+                                              str(status[1]))), YELLOW)))
+                                else:
+                                    branches.append('{} {} ({}) {}'.format(
+                                        color('>', RED), branchstr, remote,
+                                        color(str(status[0]), YELLOW)))
+                                action_required = True
+                            elif status[1] > 0:
+                                branches.append('{} {} ({}) {}'.format(
+                                    color('<', CYAN), branchstr, remote,
+                                    color(str(status[1]), YELLOW)))
+                                action_required = True
+                            elif all_:
+                                branches.append('{} {} ({})'.format(
+                                    color('=', GREEN), branchstr, remote))
+        else:
+            for branch in sorted(repo.branch_to_remotes_to_status.keys()):
+                branchstr = color(branch, GREEN) \
+                            if branch == repo.current_branch \
+                            else branch
+                if len(repo.branch_to_remotes_to_status[branch]) == 0:
+                    branches.append('{} {}'.format(color('}', RED), branchstr))
                     action_required = True
-                if repo.untracked:
-                    workspace.append(color('{}?'.format(len(repo.untracked)),
-                                     CYAN))
-                    action_required = True
-
-                if all_:
-                    for type_ in ('=', '{'):
-                        if repo.branch_stats[type_] > 0:
-                            branches.append(color(''.join((
-                                str(repo.branch_stats[type_]), type_)), GREEN))
-                if repo.branch_stats['<'] > 0:
-                    branches.append(color(''.join((
-                            str(repo.branch_stats['<']), '<')), CYAN))
-                    action_required = True
-                for type_ in ('>', '#', '}'):
-                    if repo.branch_stats[type_] > 0:
-                        branches.append(color(''.join((
-                                str(repo.branch_stats[type_]), type_)), RED))
-                        action_required = True
-
-                if all_:
-                    if action_required:
-                        print('{} {}'.format(color(repo.reponame, REDBOLD),
-                              ' '.join(workspace + branches)))
+                else:
+                    remote = tuple(repo.branch_to_remotes_to_status[branch
+                                                                    ].keys()
+                                   )[0]
+                    status = repo.branch_to_remotes_to_status[branch][remote]
+                    if status is None:
+                        if all_:
+                            branches.append('{} {}'.format(color('{', GREEN),
+                                            branchstr))
                     else:
-                        print('{} {}'.format(repo.reponame,
-                              ' '.join(workspace + branches)))
-                elif action_required:
-                    print('{} {}'.format(repo.reponame,
-                          ' '.join(workspace + branches)))
+                        if status[0] > 0:
+                            if status[1] > 0:
+                                branches.append('{} {} {}'.format(color('#',
+                                                                        RED),
+                                                branchstr, color('|'.join((
+                                                    str(status[0]),
+                                                    str(status[1]))), YELLOW)))
+                            else:
+                                branches.append('{} {} {}'.format(color('>',
+                                                                        RED),
+                                                branchstr, color(
+                                                    str(status[0]), YELLOW)))
+                            action_required = True
+                        elif status[1] > 0:
+                            branches.append('{} {} {}'.format(
+                                color('<', CYAN),
+                                branchstr, color(str(status[1]),
+                                                 YELLOW)))
+                            action_required = True
+                        elif all_:
+                            branches.append('{} {}'.format(
+                                color('=', GREEN), branchstr))
+
+        if action_required:
+            print(color(repo.reponame, REDBOLD))
+            if workspace:
+                for line in workspace:
+                    print(INDENT * 2 + line)
+            for line in branches:
+                print(INDENT + line)
+        elif all_:
+            print(color(repo.reponame, GREENBOLD))
+            if workspace:
+                for line in workspace:
+                    print(INDENT * 2 + line)
+            for line in branches:
+                print(INDENT + line)
+
+    def _display_short(self, repo, all_, INDENT, color, RED, REDBOLD, GREEN,
+                       GREENBOLD, YELLOW, YELLOWBOLD, BLUE, BLUEBOLD,
+                       PURPLE, PURPLEBOLD, CYAN, CYANBOLD, WHITE, WHITEBOLD,
+                       RESET):
+        workspace = []
+        branches = []
+        action_required = False
+
+        if repo.uncommitted:
+            workspace.append(color('{}*'.format(len(repo.uncommitted)), RED))
+            action_required = True
+        if repo.untracked:
+            workspace.append(color('{}?'.format(len(repo.untracked)), CYAN))
+            action_required = True
+
+        if all_:
+            for type_ in ('=', '{'):
+                if repo.branch_stats[type_] > 0:
+                    branches.append(color(''.join((str(repo.branch_stats[type_]
+                                                       ), type_)), GREEN))
+        if repo.branch_stats['<'] > 0:
+            branches.append(color(''.join((str(repo.branch_stats['<']), '<')),
+                            CYAN))
+            action_required = True
+        for type_ in ('>', '#', '}'):
+            if repo.branch_stats[type_] > 0:
+                branches.append(color(''.join((str(repo.branch_stats[type_]),
+                                      type_)), RED))
+                action_required = True
+
+        if all_:
+            if action_required:
+                print('{} {}'.format(color(repo.reponame, REDBOLD), ' '.join(
+                                workspace + branches)))
+            else:
+                print('{} {}'.format(repo.reponame, ' '.join(workspace +
+                                                             branches)))
+        elif action_required:
+            print('{} {}'.format(repo.reponame, ' '.join(workspace +
+                                                         branches)))
 
 
 def main():
