@@ -37,7 +37,8 @@ class RepoCheck:
         #       repository (bug #6)
         for rootdir in rootdirs:
             for dirpath, dirnames, filenames in os.walk(rootdir,
-                                                    followlinks=followlinks):
+                                                        followlinks=followlinks
+                                                        ):
                 for Repo in self.INSTALLED_VCS:
                     if Repo.DOTDIR in dirnames:
                         # Use the absolute path so that the correct repo name
@@ -94,9 +95,9 @@ class _Repository:
                 for remote in remotes_to_status:
                     remote_branch = '/'.join((remote, branch))
                     localahead = self.count_commits_ahead(branch,
-                                                                remote_branch)
+                                                          remote_branch)
                     remoteahead = self.count_commits_ahead(remote_branch,
-                                                                branch)
+                                                           branch)
                     remotes_to_status[remote] = (localahead, remoteahead)
                     if localahead > 0:
                         if remoteahead > 0:
@@ -142,11 +143,11 @@ class _Git(_Repository):
 
     def iter_local_branches(self):
         return (branch[2:] for branch in self._exec('branch', '--no-color'
-                                                                ).splitlines())
+                                                    ).splitlines())
 
     def iter_remote_branches(self):
         for line in self._exec('branch', '--remotes', '--no-color'
-                                                                ).splitlines():
+                               ).splitlines():
             remote, branch = line[2:].split('/', maxsplit=1)
             # It's important to also look for a space after 'HEAD'
             if branch[:5] != 'HEAD ':
@@ -158,7 +159,7 @@ class _Git(_Repository):
         #  that the two branches may be diverging, and the reverse command
         #  should be executed too
         return len(self._exec('rev-list',
-                        '..'.join((branch_behind, branch_ahead))).splitlines())
+                   '..'.join((branch_behind, branch_ahead))).splitlines())
 
 
 class _Mercurial(_Repository):
@@ -202,8 +203,8 @@ class Viewer:
             WHITE = "\033[0;37m"
             WHITEBOLD = "\033[1;37m"
             RESET = "\033[0m"
-        return (RED, REDBOLD, GREEN, GREENBOLD, YELLOW, YELLOWBOLD, BLUE, \
-                BLUEBOLD, PURPLE, PURPLEBOLD, CYAN, CYANBOLD, WHITE, \
+        return (RED, REDBOLD, GREEN, GREENBOLD, YELLOW, YELLOWBOLD, BLUE,
+                BLUEBOLD, PURPLE, PURPLEBOLD, CYAN, CYANBOLD, WHITE,
                 WHITEBOLD, RESET)
 
     @classmethod
@@ -243,11 +244,11 @@ Branch symbols:
             if expanded:
                 for status, filepath in repo.uncommitted:
                     workspace.append('{} {}'.format(color(status, RED),
-                                                                    filepath))
+                                                    filepath))
                     action_required = True
                 for status, filepath in repo.untracked:
                     workspace.append('{} {}'.format(color(status, CYAN),
-                                                                    filepath))
+                                                    filepath))
                     action_required = True
 
                 if len(repo.remote_to_branches) > 1:
@@ -258,7 +259,7 @@ Branch symbols:
                                     else branch
                         if len(repo.branch_to_remotes_to_status[branch]) == 0:
                             branches.append('{} {}'.format(color('}', RED),
-                                                                    branchstr))
+                                                           branchstr))
                             action_required = True
                         else:
                             for remote in repo.branch_to_remotes_to_status[
@@ -358,11 +359,11 @@ Branch symbols:
             else:
                 if repo.uncommitted:
                     workspace.append(color('{}*'.format(len(repo.uncommitted)),
-                                        RED))
+                                     RED))
                     action_required = True
                 if repo.untracked:
                     workspace.append(color('{}?'.format(len(repo.untracked)),
-                                        CYAN))
+                                     CYAN))
                     action_required = True
 
                 if all_:
@@ -383,19 +384,19 @@ Branch symbols:
                 if all_:
                     if action_required:
                         print('{} {}'.format(color(repo.reponame, REDBOLD),
-                                    ' '.join(workspace + branches)))
+                              ' '.join(workspace + branches)))
                     else:
                         print('{} {}'.format(repo.reponame,
-                                    ' '.join(workspace + branches)))
+                              ' '.join(workspace + branches)))
                 elif action_required:
                     print('{} {}'.format(repo.reponame,
-                                    ' '.join(workspace + branches)))
+                          ' '.join(workspace + branches)))
 
 
 def main():
     cliparser = argparse.ArgumentParser(description="repocheck - Check the "
-                        "status of code repositories under a root directory.",
-                        add_help=True)
+                                        "status of code repositories under a "
+                                        "root directory.", add_help=True)
     cliparser.add_argument('-u', '--update-remotes', action='store_true',
                            help='fetch updates for the remotes before '
                                 'checking a repository')
