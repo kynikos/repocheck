@@ -26,7 +26,7 @@ from subprocess import Popen, PIPE
 
 class RepoCheck:
     def __init__(self, update_remotes=False, rootdirs=('./', ),
-                 followlinks=False, nested_repos=True):
+                 followlinks=False, nested_repos=True, rel_paths=False):
         # __init__'s arguments must match the argparse attributes and their
         #  default values
         # Having a separate class allows using it as a library from another
@@ -40,7 +40,7 @@ class RepoCheck:
                     rootdir, followlinks=followlinks):
                 for Repo in self.INSTALLED_VCS:
                     if Repo.DOTDIR in dirnames:
-                        repo = Repo(reldirpath, update_remotes)
+                        repo = Repo(reldirpath, update_remotes, rel_paths)
                         self.repos[repo.absdirpath] = repo
                         break
                 else:
@@ -53,16 +53,16 @@ class _Repository:
     COMMAND = None
     DOTDIR = None
 
-    def __init__(self, reldirpath, update_remotes):
-        self.reldirpath = reldirpath
+    def __init__(self, reldirpath, update_remotes, rel_paths):
+        self.absdirpath = os.path.abspath(reldirpath)
         # Use the absolute path so that the correct repo name
         #  is displayed even if called from the root folder
         #  of a repository
-        self.absdirpath = os.path.abspath(reldirpath)
-        self.reponame = os.path.basename(self.absdirpath)
+        self.displayname = reldirpath if rel_paths else os.path.basename(
+                                                            self.absdirpath)
 
         if update_remotes:
-            print('Updating {} remotes...'.format(self.reponame))
+            print('Updating {} remotes...'.format(self.displayname))
             self.do_update_remotes()
 
         self.uncommitted, self.untracked = self.get_pending_changes()
@@ -336,14 +336,14 @@ Branch symbols:
                                 color('=', GREEN), branchstr))
 
         if action_required:
-            print(color(repo.reponame, REDBOLD))
+            print(color(repo.displayname, REDBOLD))
             if workspace:
                 for line in workspace:
                     print(INDENT * 2 + line)
             for line in branches:
                 print(INDENT + line)
         elif all_:
-            print(color(repo.reponame, GREENBOLD))
+            print(color(repo.displayname, GREENBOLD))
             if workspace:
                 for line in workspace:
                     print(INDENT * 2 + line)
@@ -382,14 +382,14 @@ Branch symbols:
 
         if all_:
             if action_required:
-                print('{} {}'.format(color(repo.reponame, REDBOLD), ' '.join(
-                                workspace + branches)))
+                print('{} {}'.format(color(repo.displayname, REDBOLD),
+                                     ' '.join(workspace + branches)))
             else:
-                print('{} {}'.format(repo.reponame, ' '.join(workspace +
-                                                             branches)))
+                print('{} {}'.format(repo.displayname,
+                                     ' '.join(workspace + branches)))
         elif action_required:
-            print('{} {}'.format(repo.reponame, ' '.join(workspace +
-                                                         branches)))
+            print('{} {}'.format(repo.displayname,
+                                 ' '.join(workspace + branches)))
 
 
 def main():
@@ -405,6 +405,9 @@ def main():
     cliparser.add_argument('-e', '--expanded', action='store_true',
                            help='print detailed information for every '
                                 'repository')
+    cliparser.add_argument('-p', '--rel-paths', action='store_true',
+                           help='print the relative paths to the repositories '
+                                'instead of just their names')
     cliparser.add_argument('-l', '--follow-links', action='store_true',
                            help='follow links to directories (*warning:* this '
                                 'can lead to infinite recursion if a link '
@@ -427,7 +430,8 @@ def main():
         Viewer.print_legend(cliargs.no_colors)
         sys.exit()
     repocheck = RepoCheck(cliargs.update_remotes, cliargs.rootdirs,
-                          cliargs.follow_links, not cliargs.no_nested_repos)
+                          cliargs.follow_links, not cliargs.no_nested_repos,
+                          cliargs.rel_paths)
     Viewer(repocheck.repos).display_results(cliargs.expanded, cliargs.all,
                                             cliargs.no_colors)
 
