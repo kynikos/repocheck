@@ -424,7 +424,7 @@ def main():
                                 'are given, the working directory is used')
     cliargs = cliparser.parse_args()
     if cliargs.legend:
-        Viewer(None).print_legend(cliargs.no_colors)
+        Viewer.print_legend(cliargs.no_colors)
         sys.exit()
     repocheck = RepoCheck(cliargs.update_remotes, cliargs.rootdirs,
                           cliargs.follow_links, not cliargs.no_nested_repos)
