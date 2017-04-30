@@ -36,17 +36,12 @@ class RepoCheck:
         # TODO: It should also work if executed from within a folder inside a
         #       repository (bug #6)
         for rootdir in rootdirs:
-            for dirpath, dirnames, filenames in os.walk(rootdir,
-                                                        followlinks=followlinks
-                                                        ):
+            for reldirpath, dirnames, filenames in os.walk(
+                    rootdir, followlinks=followlinks):
                 for Repo in self.INSTALLED_VCS:
                     if Repo.DOTDIR in dirnames:
-                        # Use the absolute path so that the correct repo name
-                        #  is displayed even if called from the root folder
-                        #  of a repository
-                        absdirpath = os.path.abspath(dirpath)
-                        self.repos[absdirpath] = Repo(absdirpath,
-                                                      update_remotes)
+                        repo = Repo(reldirpath, update_remotes)
+                        self.repos[repo.absdirpath] = repo
                         break
                 else:
                     continue
@@ -58,9 +53,13 @@ class _Repository:
     COMMAND = None
     DOTDIR = None
 
-    def __init__(self, dirpath, update_remotes):
-        self.dirpath = dirpath
-        self.reponame = os.path.basename(dirpath)
+    def __init__(self, reldirpath, update_remotes):
+        self.reldirpath = reldirpath
+        # Use the absolute path so that the correct repo name
+        #  is displayed even if called from the root folder
+        #  of a repository
+        self.absdirpath = os.path.abspath(reldirpath)
+        self.reponame = os.path.basename(self.absdirpath)
 
         if update_remotes:
             print('Updating {} remotes...'.format(self.reponame))
@@ -117,7 +116,7 @@ class _Repository:
 
     def _exec(self, *args):
         process = Popen([self.COMMAND] + list(args), stdout=PIPE,
-                        cwd=self.dirpath)
+                        cwd=self.absdirpath)
         return process.stdout.read().decode()
 
 
