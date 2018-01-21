@@ -20,15 +20,27 @@ from setuptools import setup
 
 setup(
     name='repocheck',
-    version='1.0',
+    version='1.0.0',
     description='Check the status of code repositories under a root '
                 'directory.',
+    long_description='Check the status of code repositories under a root '
+                     'directory.',
     author='Dario Giovannetti',
     author_email='dev@dariogiovannetti.net',
     url='https://github.com/kynikos/repocheck',
-    license='GPLv3',
+    license='GPLv3+',
     py_modules=['repocheck', ],
     entry_points={
         'console_scripts': ['repocheck = repocheck:main']
-    }
+    },
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Version Control',
+        'Topic :: Software Development :: Version Control :: Git',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',  # noqa
+        'Programming Language :: Python :: 3',
+    ],
+    keywords='git repository',
 )
