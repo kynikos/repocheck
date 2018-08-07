@@ -10,6 +10,7 @@ arch=('any')
 url="https://github.com/${_authname}/${_projname}"
 license=('GPL3')
 depends=('python')
+makedepends=('git' 'python-setuptools')
 source=("git://github.com/${_authname}/${_projname}.git")
 md5sums=('SKIP')
 
